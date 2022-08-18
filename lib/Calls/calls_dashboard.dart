@@ -27,7 +27,7 @@ class _CallsState extends State<Calls> {
             children: [
               CircleAvatar(
                 radius: 25,
-                backgroundColor: Colors.green,
+                backgroundColor: Color(0xff128C7E),
                 child: Icon(Icons.add_call, color: Colors.white,),),
                 SizedBox(width: 10,),
             ],

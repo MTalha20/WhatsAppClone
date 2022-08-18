@@ -12,6 +12,7 @@ class CallTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: ListTile(
+        
         leading: CircleAvatar(
           foregroundImage: AssetImage(image),
         ),
@@ -34,7 +35,7 @@ class CallTile extends StatelessWidget {
         ),
         trailing: Icon(
           Icons.call,
-          color: Colors.green,
+          color: Color(0xff128C7E),
         ),
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (context)=> UserCall(name, image, time)));

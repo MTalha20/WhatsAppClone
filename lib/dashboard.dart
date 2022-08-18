@@ -43,7 +43,7 @@ void changeVisibility_true(){
       length: 4,
       child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.green[800],
+            backgroundColor: Color(0xff128C7E),
             title: Visibility(
               visible: show_title,
               child: const Text("WhatsApp Clone")),
@@ -52,10 +52,14 @@ void changeVisibility_true(){
                 visible: show_textfield,
                 child: SizedBox(
                   height: 30,
-                  width: MediaQuery.of(context).size.width * 0.9,
+                  width: MediaQuery.of(context).size.width * 0.95,
                   child: TextField(
                     cursorColor: Colors.black,
                     decoration: InputDecoration(
+                      border: InputBorder.none,
+                      prefixIcon: GestureDetector(
+                        onTap: (){changeVisibility_true();},
+                        child: Icon(Icons.arrow_back, color: Colors.black,)),
                       hintText: "Search"
                       
                     ),

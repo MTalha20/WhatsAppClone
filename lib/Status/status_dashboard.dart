@@ -41,7 +41,7 @@ class _StatusState extends State<Status> {
                   SizedBox(height: 10),
                 CircleAvatar(
                   radius: 25,
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color(0xff128C7E),
                   child: Icon(Icons.camera_alt, color: Colors.white,)),
                   
                 ],),

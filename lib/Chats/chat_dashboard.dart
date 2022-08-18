@@ -14,7 +14,6 @@ class _ChatState extends State<Chat> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(children: [
-        
         // chattile(),
         chattile("Person1","Can't talk,WhatsApp only", "1:05", "assets/bg.jpg"),
         chattile("Person2","Can't talk,WhatsApp only", "1:05", "assets/bg.jpg"),
@@ -28,7 +27,7 @@ class _ChatState extends State<Chat> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [CircleAvatar(
             radius: 25,
-            backgroundColor: Colors.green,
+            backgroundColor: Color(0xff128C7E),
             child: Icon(
               Icons.chat_rounded,
               color: Colors.white,
