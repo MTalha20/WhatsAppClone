@@ -12,7 +12,7 @@ class UserCall extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green[800],
+        backgroundColor: Color(0xff128C7E),
         leading: GestureDetector(
           onTap: (){Navigator.of(context).pop();},
           child: Icon(Icons.arrow_back)),
@@ -30,7 +30,7 @@ class UserCall extends StatelessWidget {
           child: ListTile(
           leading: CircleAvatar(foregroundImage: AssetImage(image),),
           title: Text(name,style: TextStyle(fontWeight: FontWeight.bold),),
-          trailing: Icon(Icons.call, color: Colors.black,),
+          trailing: Icon(Icons.call, color: Color(0xff128C7E),),
           ),
           ),
           Container(

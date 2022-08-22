@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:whatsappclone/dashboard.dart';
+import 'package:whatsappclone/mainPage.dart';
 
 class splash extends StatefulWidget {
   const splash({Key? key}) : super(key: key);

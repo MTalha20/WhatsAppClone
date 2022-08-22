@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'Calls/calls_dashboard.dart';
+import 'Calls/dashboard.dart';
 import 'Camera/camera_dashboard.dart';
-import 'Chats/chat_dashboard.dart';
-import 'Status/status_dashboard.dart';
+import 'Chats/dashboardModel.dart';
+import 'Status/dashboard.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);

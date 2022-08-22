@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:flutter/material.dart';
-import 'MessageModel.dart';
+import 'messageModel.dart';
 
 class UserChat extends StatefulWidget {
   final String name;
@@ -75,46 +75,7 @@ class _UserChatState extends State<UserChat> {
           color: Color(0xffECE5DD),
           child: Column(children: [
             Expanded(
-              child: GroupedListView<Message, DateTime>(
-                reverse: true,
-                order: GroupedListOrder.DESC,
-                useStickyGroupSeparators: true,
-                floatingHeader: true,
-                padding: EdgeInsets.all(8),
-                elements: message, 
-                groupBy: (message) => DateTime(
-                  message.date.year,
-                  message.date.month,
-                  message.date.day,
-                ),
-                groupHeaderBuilder: (Message message) => SizedBox(
-                  height: 50,
-                  child: Center(
-                    child: Card(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                      color: Colors.white,
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text(DateFormat.yMMMd().format(message.date), style: TextStyle(color: Colors.grey[800]),),
-                        ),
-                    ),
-                  ),
-                ),
-                itemBuilder: (context, Message message) => 
-                  Align(
-                    alignment: message.Sender ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Card(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      color: message.Sender ? Color(0xffDCF8C6) : Colors.white,
-                      elevation: 8,
-                      child: Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Text(message.text, style: TextStyle(),
-                        ),
-                    ),
-                    ),
-                  ),
-                ),
+              child: conversations()
             ),
             Align(
               alignment: Alignment.centerLeft,
@@ -139,8 +100,8 @@ class _UserChatState extends State<UserChat> {
                           });
                         }
                     },
-                    child: messagecontroller.text.isEmpty ? Icon(Icons.keyboard_voice, color: Colors.white): Icon(Icons.send, color: Colors.white,)),
-                  )
+                    child: messagecontroller.text == "" ? Icon(Icons.keyboard_voice, color: Colors.white): Icon(Icons.send, color: Colors.white,)),
+                  ),
                 ],
               )
             )
@@ -151,6 +112,8 @@ class _UserChatState extends State<UserChat> {
 
 Widget buildTextfield() {
   return TextField(
+      keyboardType: TextInputType.multiline,
+      maxLines: null,
       controller: messagecontroller,
       cursorColor: Colors.green,
       decoration: InputDecoration(
@@ -200,5 +163,59 @@ Widget buildTextfield() {
       );
 }
 
+
+Widget conversations(){
+  return GroupedListView<Message, DateTime>(
+                reverse: true,
+                order: GroupedListOrder.DESC,
+                useStickyGroupSeparators: true,
+                floatingHeader: true,
+                padding: EdgeInsets.all(8),
+                elements: message, 
+                groupBy: (message) => DateTime(
+                  message.date.year,
+                  message.date.month,
+                  message.date.day,
+                ),
+                groupHeaderBuilder: (Message message) => SizedBox(
+                  height: 37,
+                  child: Center(
+                    child: Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      color: Colors.white,
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Text(DateFormat.yMMMd().format(message.date), style: TextStyle(color: Colors.grey[800], fontSize: 10)),
+                        ),
+                    ),
+                  ),
+                ),
+                itemBuilder: (context, Message message) => 
+                  Align(
+                    alignment: message.Sender ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)
+                      ),
+                      child: Container(
+                        // width: MediaQuery.of(context).size.width*0.3,
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: message.Sender ? Color(0xffDCF8C6) : Colors.white,
+                        ),
+                        child: RichText(text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(text: message.text, style: TextStyle(color: Colors.black)),
+                            TextSpan(text: "    ", style: TextStyle(color: Colors.black)),
+                            TextSpan(text: DateFormat("HH:mm").format(DateTime.now()), style: TextStyle(fontSize: 10, color: Colors.black))
+                          ]
+                        )),
+                        // child: Text(message.text + " " + DateFormat("HH:mm").format(DateTime.now(),)),  
+                      ),
+                    ),
+                  ),
+                );
+}
 
 }

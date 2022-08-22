@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'chat_message.dart';
+import 'message.dart';
 
 var userlist = [
 {'title': 'Bilal', 'subtitle': 'Busy', 'time': '1:05', 'image': 'assets/bg.jpg' },

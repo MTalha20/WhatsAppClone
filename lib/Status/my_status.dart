@@ -7,18 +7,19 @@ class MyStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        CircleAvatar(          
+        CircleAvatar(        
+            radius: 27,  
             foregroundImage: AssetImage("assets/bg.jpg")),
         Positioned(
           bottom: 0,
           right: 0,
           child: CircleAvatar(
             backgroundColor: Colors.green,
-            radius: MediaQuery.of(context).size.height*0.013,
+            radius: MediaQuery.of(context).size.height*0.015,
             child: Icon(
               Icons.add,
               color: Colors.white,
-              size: MediaQuery.of(context).size.height*0.017,
+              size: MediaQuery.of(context).size.height*0.02,
               ),))
       ],
     );

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:whatsappclone/dashboard.dart';
+import 'package:whatsappclone/mainPage.dart';
 import 'package:whatsappclone/splash.dart';
 
 void main() {
