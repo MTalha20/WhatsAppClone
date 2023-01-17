@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Message {
 
   final String text;
@@ -8,6 +10,6 @@ class Message {
     required this.text,
     required this.date,
     required this.Sender,
+  
   });
-
 }

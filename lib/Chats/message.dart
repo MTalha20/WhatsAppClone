@@ -1,38 +1,96 @@
+import 'dart:async';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:flutter/material.dart';
 import 'messageModel.dart';
 
 class UserChat extends StatefulWidget {
+  
   final String name;
   final String image;
+  final String userID;
 
-  const UserChat(this.name, this.image);
-
+  const UserChat(this.name, this.image, this.userID);
+  
   @override
+
   State<UserChat> createState() => _UserChatState();
 }
 
+ScrollController scroll = ScrollController();
 TextEditingController messagecontroller = TextEditingController();
-List<Message>message = [
-  Message(text: "Yeah be Quick", date: DateTime.now().subtract(Duration(days: 1 , minutes: 1)), Sender: false),
-  Message(text: "Okkk", date: DateTime.now().subtract(Duration(days: 1, minutes: 5)), Sender: true),
-  Message(text: "Its too late", date: DateTime.now().subtract(Duration(days: 2 , minutes: 6)), Sender: false),
-  Message(text: "Coming", date: DateTime.now().subtract(Duration(days: 2 ,minutes: 10)), Sender: true),
-  Message(text: "Where Are You", date: DateTime.now().subtract(Duration(days: 3 ,minutes: 5)), Sender: false),
-  Message(text: "Yup", date: DateTime.now().subtract(Duration(days: 3 ,minutes: 2)), Sender: true),
-  Message(text: "Hello", date: DateTime.now().subtract(Duration(days: 3 ,minutes: 1)), Sender: false),
-  Message(text: "No", date: DateTime.now().subtract(Duration(days: 4 , minutes: 1)), Sender: false),
-  Message(text: "Is he at office", date: DateTime.now().subtract(Duration(days: 4, minutes: 5)), Sender: true),
-  Message(text: "Yes", date: DateTime.now().subtract(Duration(days: 5 , minutes: 6)), Sender: false),
-  Message(text: "did you know him", date: DateTime.now().subtract(Duration(days: 2 ,minutes: 10)), Sender: true),
-  Message(text: "yes", date: DateTime.now().subtract(Duration(days: 5 ,minutes: 5)), Sender: false),
-  Message(text: "i am steve", date: DateTime.now().subtract(Duration(days: 6 ,minutes: 2)), Sender: true),
-  Message(text: "Hello", date: DateTime.now().subtract(Duration(days: 6 ,minutes: 1)), Sender: false),
-].reversed.toList();
+
 
 class _UserChatState extends State<UserChat> {
  
+
+DatabaseReference messageRef = FirebaseDatabase.instance.ref("messages");
+
+write()async{
+  
+  DatabaseReference newMessageRef = messageRef.push();
+
+  try {
+    await newMessageRef.set({
+  
+       "message": messagecontroller.text,
+       "dateTime": DateTime.now().toString(),
+       "sender": myID,
+       "receiver": widget.userID,
+       "key": newMessageRef.key,
+  });
+
+  print("Message added DB");
+
+  } catch (e) {
+    print("Error in  DB");
+    print(e.toString());
+  }
+}
+
+List items = [];
+var myID = "03222563023";
+List <Message> chats = [];
+get()async{
+  
+  try{
+
+  var refrence =  await FirebaseDatabase.instance.ref("messages");
+  refrence.onChildAdded.listen((event){ 
+  var data = event.snapshot;
+  chats.add(Message(
+  text: data.child("message").value.toString(), 
+  date: DateTime.parse(data.child("dateTime").value.toString()), 
+  Sender: true));
+  print(data.child("message").value.toString());
+  print(data.child("dateTime").value.toString());
+  print(data.child("sender").value.toString());
+
+  });
+    
+    print(chats);
+    print("Data Fetched Form DB");
+   
+  } 
+  
+  catch (e) {
+    print(e.toString());
+    print("error in getting messages from DB");
+  } 
+ 
+}
+
+var input = "";
+
+@override
+
+void initState(){
+  get();
+  super.initState();
+}
+
+
 @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,35 +133,39 @@ class _UserChatState extends State<UserChat> {
           color: Color(0xffECE5DD),
           child: Column(children: [
             Expanded(
-              child: conversations()
+              flex: 100,
+              // child: Container(),
+              child: conversations(context),
             ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  Container(
-                width: MediaQuery.of(context).size.width*0.85,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50) 
-                  ), 
-                  child: buildTextfield()),
-                  SizedBox(width: 5,),
-                  CircleAvatar(radius: 23,
-                  backgroundColor: Color(0xff128C7E),
-                  child: GestureDetector(
-                    onTap: () {
-                      final messages = Message(text: messagecontroller.text, date: DateTime.now(), Sender: true);
-                        if (messagecontroller.text != "") {
-                          setState(() {
-                            message.add(messages);
-                            messagecontroller.text == "";
-                          });
-                        }
-                    },
-                    child: messagecontroller.text == "" ? Icon(Icons.keyboard_voice, color: Colors.white): Icon(Icons.send, color: Colors.white,)),
-                  ),
-                ],
-              )
+            Flexible(
+              flex: 20,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    Container(
+                  width: MediaQuery.of(context).size.width*0.85,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50) 
+                    ), 
+                    child: buildTextfield()),
+                    SizedBox(width: 5,),
+                    CircleAvatar(radius: 23,
+                    backgroundColor: Color(0xff128C7E),
+                    child: GestureDetector(
+                      onTap: () {
+                        // final messages = Message(text: messagecontroller.text, date: DateTime.now(), Sender: true);
+                          if (messagecontroller.text != "") {
+                              write();
+                              messagecontroller.clear();
+                            
+                          }
+                      },
+                      child: input == "" ? Icon(Icons.keyboard_voice, color: Colors.white): Icon(Icons.send, color: Colors.white,)),
+                    ),
+                  ],
+                )
+              ),
             )
           ]),
         ));
@@ -111,73 +173,83 @@ class _UserChatState extends State<UserChat> {
 
 
 Widget buildTextfield() {
-  return TextField(
-      keyboardType: TextInputType.multiline,
-      maxLines: null,
-      controller: messagecontroller,
-      cursorColor: Colors.green,
-      decoration: InputDecoration(
-        // contentPadding: EdgeInsets.all(12),
-        filled: true,
-        border: InputBorder.none,
-        fillColor: Colors.white,
-        prefixIcon: Icon(
-          Icons.emoji_emotions_rounded,
-          color: Colors.grey[800],
+  return Scrollbar(
+    controller: scroll,
+    isAlwaysShown: true,
+    child: TextField(
+        onChanged: (value){
+          setState(() {
+            input = value;
+          });
+        },
+        keyboardType: TextInputType.multiline,
+        maxLines: null,
+        controller: messagecontroller,
+        cursorColor: Colors.green,
+        scrollController:  scroll,
+        decoration: InputDecoration(
+          // contentPadding: EdgeInsets.all(12),
+          filled: true,
+          border: InputBorder.none,
+          fillColor: Colors.white,
+          prefixIcon: Icon(
+            Icons.emoji_emotions_rounded,
+            color: Colors.grey[800],
+          ),
+          suffixIcon: SizedBox(
+              width: 80,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(
+                    Icons.attach_file,
+                    color: Colors.grey[800],
+                  ),
+                  SizedBox(
+                    width: 2,
+                  ),
+                  Icon(
+                    Icons.camera_alt_rounded,
+                    color: Colors.grey[800],
+                  ),
+                  SizedBox(
+                    width: 5,
+                  )
+                ],
+              )),
+          hintText: "Message",
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            borderSide: BorderSide(width: 1, color: Colors.white),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            borderSide: BorderSide(width: 1, color: Colors.white),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            borderSide: BorderSide(width: 1, color: Colors.white),
+          ),
         ),
-        suffixIcon: SizedBox(
-            width: 80,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Icon(
-                  Icons.attach_file,
-                  color: Colors.grey[800],
-                ),
-                SizedBox(
-                  width: 2,
-                ),
-                Icon(
-                  Icons.camera_alt_rounded,
-                  color: Colors.grey[800],
-                ),
-                SizedBox(
-                  width: 5,
-                )
-              ],
-            )),
-        hintText: "Message",
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          borderSide: BorderSide(width: 1, color: Colors.white),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          borderSide: BorderSide(width: 1, color: Colors.white),
-        ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          borderSide: BorderSide(width: 1, color: Colors.white),
-        ),
-      ),
-      );
+  );
 }
 
 
-Widget conversations(){
+Widget conversations(context){
   return GroupedListView<Message, DateTime>(
                 reverse: true,
                 order: GroupedListOrder.DESC,
                 useStickyGroupSeparators: true,
                 floatingHeader: true,
                 padding: EdgeInsets.all(8),
-                elements: message, 
-                groupBy: (message) => DateTime(
-                  message.date.year,
-                  message.date.month,
-                  message.date.day,
+                elements: chats, 
+                groupBy: (chats) => DateTime(
+                  chats.date.year,
+                  chats.date.month,
+                  chats.date.day,
                 ),
-                groupHeaderBuilder: (Message message) => SizedBox(
+                groupHeaderBuilder: (Message chats) => SizedBox(
                   height: 37,
                   child: Center(
                     child: Card(
@@ -185,14 +257,14 @@ Widget conversations(){
                       color: Colors.white,
                       child: Padding(
                         padding: EdgeInsets.all(10),
-                        child: Text(DateFormat.yMMMd().format(message.date), style: TextStyle(color: Colors.grey[800], fontSize: 10)),
+                        child: Text(DateFormat.yMMMd().format(chats.date), style: TextStyle(color: Colors.grey[800], fontSize: 10)),
                         ),
                     ),
                   ),
                 ),
-                itemBuilder: (context, Message message) => 
+                itemBuilder: (context, Message chats) => 
                   Align(
-                    alignment: message.Sender ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: chats.Sender ? Alignment.centerRight : Alignment.centerLeft,
                     child: Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30)
@@ -202,16 +274,16 @@ Widget conversations(){
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
-                          color: message.Sender ? Color(0xffDCF8C6) : Colors.white,
+                          color: chats.Sender ? Color(0xffDCF8C6) : Colors.white,
                         ),
                         child: RichText(text: TextSpan(
                           children: <TextSpan>[
-                            TextSpan(text: message.text, style: TextStyle(color: Colors.black)),
+                            TextSpan(text: chats.text, style: TextStyle(color: Colors.black)),
                             TextSpan(text: "    ", style: TextStyle(color: Colors.black)),
-                            TextSpan(text: DateFormat("HH:mm").format(DateTime.now()), style: TextStyle(fontSize: 10, color: Colors.black))
+                            TextSpan(text: DateFormat("HH:mm").format(chats.date), style: TextStyle(fontSize: 10, color: Colors.black))
                           ]
                         )),
-                        // child: Text(message.text + " " + DateFormat("HH:mm").format(DateTime.now(),)),  
+                        // child: Text(chats.text),  
                       ),
                     ),
                   ),
@@ -219,3 +291,6 @@ Widget conversations(){
 }
 
 }
+
+
+

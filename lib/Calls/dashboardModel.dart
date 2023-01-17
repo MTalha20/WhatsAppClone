@@ -14,6 +14,7 @@ class CallTile extends StatelessWidget {
       child: ListTile(
         
         leading: CircleAvatar(
+          radius: 25,
           foregroundImage: AssetImage(image),
         ),
         title: Text(

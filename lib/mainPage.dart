@@ -93,7 +93,7 @@ void changeVisibility_true(){
               Container(
                   width: MediaQuery.of(context).size.width * 0.05,
                   child: Tab(
-                    icon: Icon(Icons.camera_alt),
+                    icon: Icon(Icons.groups_outlined),
                   )),
               Container(
                   width: MediaQuery.of(context).size.width * 0.3,

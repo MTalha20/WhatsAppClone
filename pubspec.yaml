@@ -38,6 +38,8 @@ dependencies:
   grouped_list: ^5.1.2
   date_format: ^2.0.6
   intl: ^0.17.0
+  firebase_core: ^2.4.0
+  firebase_database: ^10.0.7
 
 dev_dependencies:
   flutter_test:
