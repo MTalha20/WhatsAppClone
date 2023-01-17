@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:grouped_list/grouped_list.dart';
@@ -6,94 +5,91 @@ import 'package:flutter/material.dart';
 import 'messageModel.dart';
 
 class UserChat extends StatefulWidget {
-  
   final String name;
   final String image;
   final String userID;
 
   const UserChat(this.name, this.image, this.userID);
-  
-  @override
 
+  @override
   State<UserChat> createState() => _UserChatState();
 }
 
 ScrollController scroll = ScrollController();
 TextEditingController messagecontroller = TextEditingController();
 
-
 class _UserChatState extends State<UserChat> {
- 
+  DatabaseReference messageRef = FirebaseDatabase.instance.ref("messages");
 
-DatabaseReference messageRef = FirebaseDatabase.instance.ref("messages");
+  write() async {
+    DatabaseReference newMessageRef = messageRef.push();
 
-write()async{
-  
-  DatabaseReference newMessageRef = messageRef.push();
+    try {
+      await newMessageRef.set({
+        "message": messagecontroller.text,
+        "dateTime": DateTime.now().toString(),
+        "sender": myID,
+        "receiver": widget.userID,
+        "key": newMessageRef.key,
+      });
 
-  try {
-    await newMessageRef.set({
-  
-       "message": messagecontroller.text,
-       "dateTime": DateTime.now().toString(),
-       "sender": myID,
-       "receiver": widget.userID,
-       "key": newMessageRef.key,
-  });
-
-  print("Message added DB");
-
-  } catch (e) {
-    print("Error in  DB");
-    print(e.toString());
+      print("Message added DB");
+    } catch (e) {
+      print("Error in  DB");
+      print(e.toString());
+    }
   }
-}
 
-List items = [];
-var myID = "03222563023";
-List <Message> chats = [];
-get()async{
-  
-  try{
+  late bool res;
+  List items = [];
+  var myID = "03222563023";
+  List<Message> chats = [];
+  get() async {
+    try {
+      var refrence = await FirebaseDatabase.instance
+          .ref("messages")
+          .orderByChild("sender")
+          .equalTo(myID)
+          .onChildAdded
+          .listen((event) {
+        var data = event.snapshot;
+        var rec = data.child("receiver").value.toString();
+        var sen = data.child("sender").value.toString();
 
-  var refrence =  await FirebaseDatabase.instance.ref("messages");
-  refrence.onChildAdded.listen((event){ 
-  var data = event.snapshot;
-  chats.add(Message(
-  text: data.child("message").value.toString(), 
-  date: DateTime.parse(data.child("dateTime").value.toString()), 
-  Sender: true));
-  print(data.child("message").value.toString());
-  print(data.child("dateTime").value.toString());
-  print(data.child("sender").value.toString());
+        if ((sen == myID && rec == widget.userID) ||
+            (sen == widget.userID && rec == myID)) {
+          if (sen == myID) {
+            res = true;
+          } else {
+            res = false;
+          }
+          chats.add(Message(
+              text: data.child("message").value.toString(),
+              date: DateTime.parse(data.child("dateTime").value.toString()),
+              Sender: res));
+        }
+      });
 
-  });
-    
-    print(chats);
-    print("Data Fetched Form DB");
-   
-  } 
-  
-  catch (e) {
-    print(e.toString());
-    print("error in getting messages from DB");
-  } 
- 
-}
+      print(chats);
+      print("Data Fetched Form DB");
+    } catch (e) {
+      print(e.toString());
+      print("error in getting messages from DB");
+    }
+  }
 
-var input = "";
+  var input = "";
 
-@override
+  @override
+  void initState() {
+    get();
+    super.initState();
+  }
 
-void initState(){
-  get();
-  super.initState();
-}
-
-
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Color(0xffECE5DD),
         appBar: AppBar(
           leading: Row(
             children: [
@@ -127,57 +123,57 @@ void initState(){
           ],
           backgroundColor: Color(0xff128C7E),
         ),
-        body: Container(
-          width: double.infinity,
-          height: double.infinity,
-          color: Color(0xffECE5DD),
-          child: Column(children: [
+        body: Column(
+          children: [
             Expanded(
-              flex: 100,
-              // child: Container(),
               child: conversations(context),
             ),
-            Flexible(
-              flex: 20,
-              child: Align(
-                alignment: Alignment.centerLeft,
+            Align(
+                alignment: Alignment.bottomLeft,
                 child: Row(
                   children: [
                     Container(
-                  width: MediaQuery.of(context).size.width*0.85,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50) 
-                    ), 
-                    child: buildTextfield()),
-                    SizedBox(width: 5,),
-                    CircleAvatar(radius: 23,
-                    backgroundColor: Color(0xff128C7E),
-                    child: GestureDetector(
-                      onTap: () {
-                        // final messages = Message(text: messagecontroller.text, date: DateTime.now(), Sender: true);
-                          if (messagecontroller.text != "") {
+                      constraints: BoxConstraints(
+                        minWidth: MediaQuery.of(context).size.width * 0.85,
+                        minHeight: MediaQuery.of(context).size.height*0.1,
+                        maxWidth: MediaQuery.of(context).size.width*0.85,
+                        maxHeight: MediaQuery.of(context).size.height*0.2,
+                      ),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50)),
+                        child: buildTextfield()),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    CircleAvatar(
+                      radius: 23,
+                      backgroundColor: Color(0xff128C7E),
+                      child: GestureDetector(
+                          onTap: () {
+                            if (messagecontroller.text != "") {
                               write();
                               messagecontroller.clear();
-                            
-                          }
-                      },
-                      child: input == "" ? Icon(Icons.keyboard_voice, color: Colors.white): Icon(Icons.send, color: Colors.white,)),
+                            }
+                          },
+                          child: input == ""
+                              ? Icon(Icons.keyboard_voice, color: Colors.white)
+                              : Icon(
+                                  Icons.send,
+                                  color: Colors.white,
+                                )),
                     ),
                   ],
-                )
-              ),
-            )
-          ]),
+                ))
+          ],
         ));
   }
 
-
-Widget buildTextfield() {
-  return Scrollbar(
-    controller: scroll,
-    isAlwaysShown: true,
-    child: TextField(
-        onChanged: (value){
+  Widget buildTextfield() {
+    return Scrollbar(
+      controller: scroll,
+      isAlwaysShown: true,
+      child: TextField(
+        onChanged: (value) {
           setState(() {
             input = value;
           });
@@ -186,7 +182,7 @@ Widget buildTextfield() {
         maxLines: null,
         controller: messagecontroller,
         cursorColor: Colors.green,
-        scrollController:  scroll,
+        scrollController: scroll,
         decoration: InputDecoration(
           // contentPadding: EdgeInsets.all(12),
           filled: true,
@@ -231,66 +227,61 @@ Widget buildTextfield() {
             borderSide: BorderSide(width: 1, color: Colors.white),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget conversations(context) {
+    return GroupedListView<Message, DateTime>(
+      reverse: true,
+      order: GroupedListOrder.DESC,
+      useStickyGroupSeparators: true,
+      floatingHeader: true,
+      padding: EdgeInsets.all(8),
+      elements: chats,
+      groupBy: (chats) => DateTime(
+        chats.date.year,
+        chats.date.month,
+        chats.date.day,
+      ),
+      groupHeaderBuilder: (Message chats) => SizedBox(
+        height: 37,
+        child: Center(
+          child: Card(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            color: Colors.white,
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: Text(DateFormat.yMMMd().format(chats.date),
+                  style: TextStyle(color: Colors.grey[800], fontSize: 10)),
+            ),
+          ),
         ),
-  );
-}
-
-
-Widget conversations(context){
-  return GroupedListView<Message, DateTime>(
-                reverse: true,
-                order: GroupedListOrder.DESC,
-                useStickyGroupSeparators: true,
-                floatingHeader: true,
-                padding: EdgeInsets.all(8),
-                elements: chats, 
-                groupBy: (chats) => DateTime(
-                  chats.date.year,
-                  chats.date.month,
-                  chats.date.day,
-                ),
-                groupHeaderBuilder: (Message chats) => SizedBox(
-                  height: 37,
-                  child: Center(
-                    child: Card(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                      color: Colors.white,
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text(DateFormat.yMMMd().format(chats.date), style: TextStyle(color: Colors.grey[800], fontSize: 10)),
-                        ),
-                    ),
-                  ),
-                ),
-                itemBuilder: (context, Message chats) => 
-                  Align(
-                    alignment: chats.Sender ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)
-                      ),
-                      child: Container(
-                        // width: MediaQuery.of(context).size.width*0.3,
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: chats.Sender ? Color(0xffDCF8C6) : Colors.white,
-                        ),
-                        child: RichText(text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(text: chats.text, style: TextStyle(color: Colors.black)),
-                            TextSpan(text: "    ", style: TextStyle(color: Colors.black)),
-                            TextSpan(text: DateFormat("HH:mm").format(chats.date), style: TextStyle(fontSize: 10, color: Colors.black))
-                          ]
-                        )),
-                        // child: Text(chats.text),  
-                      ),
-                    ),
-                  ),
-                );
-}
-
-}
-
-
-
+      ),
+      itemBuilder: (context, Message chats) => Align(
+        alignment: chats.Sender ? Alignment.centerRight : Alignment.centerLeft,
+        child: Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          child: Container(
+            // width: MediaQuery.of(context).size.width*0.3,
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              color: chats.Sender ? Color(0xffDCF8C6) : Colors.white,
+            ),
+            child: RichText(
+                text: TextSpan(children: <TextSpan>[
+              TextSpan(text: chats.text, style: TextStyle(color: Colors.black)),
+              TextSpan(text: "    ", style: TextStyle(color: Colors.black)),
+              TextSpan(
+                  text: DateFormat("HH:mm").format(chats.date),
+                  style: TextStyle(fontSize: 10, color: Colors.black))
+            ])),
+            // child: Text(chats.text),
+          ),
+        ),
+      ),
+    );
+  }}
