@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:whatsappclone/sharedData.dart';
 
 class Camera extends StatefulWidget {
   const Camera({ Key? key }) : super(key: key);
@@ -8,6 +10,14 @@ class Camera extends StatefulWidget {
 }
 
 class _CameraState extends State<Camera> {
+
+  @override
+  void initState() {
+    var screen = Provider.of<Screen>(context, listen: false);
+    screen.changeScreenVal(0);
+    print("Screen " + screen.getScreenVal().toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:whatsappclone/mainPage.dart';
+import 'package:whatsappclone/sharedData.dart';
 
 class splash extends StatefulWidget {
   const splash({Key? key}) : super(key: key);
@@ -17,7 +19,10 @@ class _splashState extends State<splash> {
     Timer(
         const Duration(seconds: 3),
         () => Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Dashboard())));
+            context, MaterialPageRoute(builder: (context) => 
+            ChangeNotifierProvider(
+              create: (context) => Screen(),
+              child: Dashboard()))));
   }
 
   Widget build(BuildContext context) {

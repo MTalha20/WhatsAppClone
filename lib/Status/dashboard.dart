@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:whatsappclone/sharedData.dart';
 import 'my_status.dart';
 import 'other_status.dart';
 
@@ -10,6 +12,15 @@ class Status extends StatefulWidget {
 }
 
 class _StatusState extends State<Status> {
+
+  @override
+  void initState() {
+    var screen = Provider.of<Screen>(context, listen: false);
+    screen.changeScreenVal(2);
+    print("Screen " + screen.getScreenVal().toString());
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

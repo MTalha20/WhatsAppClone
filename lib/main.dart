@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:whatsappclone/sharedData.dart';
 import 'package:whatsappclone/splash.dart';
 
 void main() async{
@@ -18,7 +20,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(body: splash(),),
-    );
+      home: Scaffold(body: 
+        splash()));
+    
   }
 }
